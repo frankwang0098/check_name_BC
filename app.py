@@ -12,7 +12,7 @@ def home():
 def scrape():
     url = "https://www.names.bcregistry.gov.bc.ca/"
     data = request.json or {}
-    input_name = data.get("name", "Bob's Burger")
+    input_name = data.get("name", "JAMES' BURGER")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
