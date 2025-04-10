@@ -13,7 +13,7 @@ def scrape():
     url = "https://www.names.bcregistry.gov.bc.ca/"
     data = request.json or {}
     input_name = data.get("name", "JAMES' BURGER")
-    input_designation = data.get("designation", "CORP.")
+    input_designation = data.get("designation", "LIMITED")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -29,7 +29,9 @@ def scrape():
         page.get_by_role("textbox", name="Enter a name to request").click()
         page.get_by_role("textbox", name="Enter a name to request").fill(input_name)
         page.get_by_role("button", name="Select a Designation").click()
-        page.get_by_text(input_designation).click()
+
+        # Select the designation from the dropdown
+        page.get_by_role("option", name=input_designation).locator("div").first.click()
         page.get_by_role("button", name="Check this Name").click()
 
         # wait until selector contains " Attention Required " or " Ready for Review ".
