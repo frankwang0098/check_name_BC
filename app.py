@@ -12,6 +12,7 @@ def home():
 def scrape():
     url = "https://www.names.bcregistry.gov.bc.ca/"
     data = request.json or {}
+    input_type = data.get("type", "Limited Company")
     input_name = data.get("name", "JAMES' BURGER")
     input_designation = data.get("designation", "LIMITED")
 
@@ -24,14 +25,19 @@ def scrape():
         page.get_by_role("button", name="Action").click()
         page.get_by_role("menuitem", name="For businesses that do not").locator("div").first.click()
         page.get_by_text("Start a new BC-based business").click()
+
+        # Select the type of business from the dropdown
         page.get_by_role("button", name="Select type of business in B.").click()
-        page.get_by_text("Limited Company").click()
+        page.get_by_role("option", name=input_type).click()
+
+        # Fill the name input field with the provided name
         page.get_by_role("textbox", name="Enter a name to request").click()
         page.get_by_role("textbox", name="Enter a name to request").fill(input_name)
-        page.get_by_role("button", name="Select a Designation").click()
 
         # Select the designation from the dropdown
+        page.get_by_role("button", name="Select a Designation").click()
         page.get_by_role("option", name=input_designation).locator("div").first.click()
+
         page.get_by_role("button", name="Check this Name").click()
 
         # wait until selector contains " Attention Required " or " Ready for Review ".
