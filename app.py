@@ -45,12 +45,22 @@ def scrape():
 
         finalResult = {"Status": name_review_status}
 
-        if "Attention Required" in name_review_status and page.get_by_role("tab", name=re.compile(r"Similar Name Check OK")).count() == 0:
-            page.get_by_role("tab", name=re.compile(r"Similar Name Check \d+")).first.click()
-            page.get_by_role("row", name="Similar names are currently").locator("i").nth(1).click()
-            selector_similar_names = "div.row.px-15.no-gutters"
-            similar_names = page.locator(selector_similar_names).text_content()
-            finalResult["Similar Names"] = similar_names
+        if "Attention Required" in name_review_status:
+            #Name Structure Check
+            if page.get_by_role("tab", name=re.compile(r"Name Structure Check OK")).count() == 0:
+                selector_name_structure = "div.row.conflict-row.py-5.px-4.border-top.no-gutters"
+                name_structure_problem = page.locator(selector_name_structure).text_content()
+                # Remove the "Read More" text from the extracted content.
+                name_structure_problem_cleaned = name_structure_problem.replace("Read More", "").strip()
+                finalResult["Name Structure"] = name_structure_problem_cleaned
+
+            #Similar Name Check
+            if page.get_by_role("tab", name=re.compile(r"Similar Name Check OK")).count() == 0:
+                page.get_by_role("tab", name=re.compile(r"Similar Name Check \d+")).first.click()
+                page.get_by_role("row", name="Similar names are currently").locator("i").nth(1).click()
+                selector_similar_names = "div.row.px-15.no-gutters"
+                similar_names = page.locator(selector_similar_names).text_content()
+                finalResult["Similar Names"] = similar_names
 
         browser.close()
 
