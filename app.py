@@ -34,9 +34,10 @@ def scrape():
         page.get_by_role("textbox", name="Enter a name to request").click()
         page.get_by_role("textbox", name="Enter a name to request").fill(input_name)
 
-        # Select the designation from the dropdown
-        page.get_by_role("button", name="Select a Designation").click()
-        page.get_by_role("option", name=input_designation).locator("div").first.click()
+        if input_type.lower() != "Limited Company".lower():
+            # Select the designation from the dropdown
+            page.get_by_role("button", name="Select a Designation").click()
+            page.get_by_role("option", name=input_designation).locator("div").first.click()
 
         page.get_by_role("button", name="Check this Name").click()
 
