@@ -13,9 +13,11 @@ def scrape():
     url = "https://www.names.bcregistry.gov.bc.ca/"
     data = request.json or {}
     input_name = data.get("name", "JAMES' BURGER")
+    input_designation = data.get("designation", "CORP.")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
+        #browser = p.chromium.launch(executable_path="/usr/bin/chromium", args=["--disable-gpu", "--no-sandbox", "--headless"])
         page = browser.new_page()
         page.goto(url)
 
@@ -27,7 +29,7 @@ def scrape():
         page.get_by_role("textbox", name="Enter a name to request").click()
         page.get_by_role("textbox", name="Enter a name to request").fill(input_name)
         page.get_by_role("button", name="Select a Designation").click()
-        page.get_by_text("CORP.").click()
+        page.get_by_text(input_designation).click()
         page.get_by_role("button", name="Check this Name").click()
 
         # wait until selector contains " Attention Required " or " Ready for Review ".
