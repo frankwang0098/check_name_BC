@@ -12,7 +12,7 @@ def home():
 def scrape():
     url = "https://www.names.bcregistry.gov.bc.ca/"
     data = request.json or {}
-    input_name = data.get("name", "Bob's Furniture")
+    input_name = data.get("name", "Bob's Burger")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -45,7 +45,7 @@ def scrape():
 
         finalResult = {"Status": name_review_status}
 
-        if "Attention Required" in name_review_status & page.get_by_role("tab", name=re.compile(r"Similar Name Check OK")).count() == 0:
+        if "Attention Required" in name_review_status and page.get_by_role("tab", name=re.compile(r"Similar Name Check OK")).count() == 0:
             page.get_by_role("tab", name=re.compile(r"Similar Name Check \d+")).first.click()
             page.get_by_role("row", name="Similar names are currently").locator("i").nth(1).click()
             selector_similar_names = "div.row.px-15.no-gutters"
