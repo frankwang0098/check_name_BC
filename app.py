@@ -77,5 +77,36 @@ def scrape():
 
     return jsonify(finalResult)
 
+@app.route('/scrape_trademark', methods=['POST'])
+def scrape_trademark():
+    url = "https://ised-isde.canada.ca/cipo/trademark-search/srch?null"
+    data = request.json or {}
+    input_name = data.get("name", "frank's Diner")
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        #browser = p.chromium.launch(executable_path="/usr/bin/chromium", args=["--disable-gpu", "--no-sandbox", "--headless"])
+        page = browser.new_page()
+        page.goto(url)
+
+        page.get_by_role("textbox", name="Enter search criteria: in").click()
+        page.get_by_role("textbox", name="Enter search criteria: in").fill(input_name)
+        page.get_by_role("button", name="Search", exact=True).click()
+
+        # check if the search result is empty
+        selector_search_result = "table#search-results-table.wb-tables.table.table-striped.table-hover.small.wb-init.wb-tables-inited.dataTable.no-footer"
+        page.wait_for_selector(selector_search_result, timeout=10000)
+        search_result = page.locator(selector_search_result).text_content()
+
+        if "No data is available in the table" in search_result:
+            finalResult = {"Status": "No Trademarks were found"}
+        else:
+            finalResult = {"Status": "Trademarks were found"}
+
+
+        browser.close()
+
+    return jsonify(finalResult)
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
