@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from playwright.sync_api import sync_playwright
-import re
+import re, time
 
 app = Flask(__name__)
 
@@ -81,13 +81,15 @@ def scrape():
 def scrape_trademark():
     url = "https://ised-isde.canada.ca/cipo/trademark-search/srch?null"
     data = request.json or {}
-    input_name = data.get("name", "frank's Diner")
+    input_name = data.get("name", "bob's Diner")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         #browser = p.chromium.launch(executable_path="/usr/bin/chromium", args=["--disable-gpu", "--no-sandbox", "--headless"])
         page = browser.new_page()
         page.goto(url)
+
+        time.sleep(2)
 
         page.get_by_role("textbox", name="Enter search criteria: in").click()
         page.get_by_role("textbox", name="Enter search criteria: in").fill(input_name)
