@@ -28,7 +28,8 @@ def scrape():
 
         # Select the type of business from the dropdown
         page.get_by_role("button", name="Select type of business in B.").click()
-        page.get_by_role("option", name=input_type).click()
+        page.get_by_text("View all business types").click()
+        page.get_by_role("cell", name=input_type).click()
 
         # Fill the name input field with the provided name
         page.get_by_role("textbox", name="Enter a name to request").click()
@@ -77,11 +78,32 @@ def scrape():
 
     return jsonify(finalResult)
 
+@app.route('/name_checker_form', methods=['POST'])
+def scrape_trademark():
+    url = "https://forms.gle/GtToisz5HwGwgoJo6"
+    data = request.json or {}
+    input_name = data.get("name", "magi's diner")
+
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False)
+        #browser = p.chromium.launch(executable_path="/usr/bin/chromium", args=["--disable-gpu", "--no-sandbox", "--headless"])
+        page = browser.new_page()
+        page.goto(url)
+
+        
+
+
+        browser.close()
+
+    return jsonify(finalResult)
+
+# official trademark search page doesn't work with playwright
+'''
 @app.route('/scrape_trademark', methods=['POST'])
 def scrape_trademark():
     url = "https://ised-isde.canada.ca/cipo/trademark-search/srch?null"
     data = request.json or {}
-    input_name = data.get("name", "bob's Diner")
+    input_name = data.get("name", "magi's diner")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -109,6 +131,7 @@ def scrape_trademark():
         browser.close()
 
     return jsonify(finalResult)
+'''
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
