@@ -79,10 +79,12 @@ def scrape():
     return jsonify(finalResult)
 
 @app.route('/name_checker_form', methods=['POST'])
-def scrape_trademark():
+def name_checker_form():
     url = "https://forms.gle/GtToisz5HwGwgoJo6"
     data = request.json or {}
-    input_name = data.get("name", "magi's diner")
+    input_type = data.get("type", "Limited Company")
+    input_name = data.get("name", "JAMES' BURGER")
+    input_designation = data.get("designation", "LIMITED")
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -90,12 +92,29 @@ def scrape_trademark():
         page = browser.new_page()
         page.goto(url)
 
-        
+        # Fill Company Name
+        page.get_by_role("textbox", name="Company Name Required question").click()
+        page.get_by_role("textbox", name="Company Name Required question").fill(input_name)
 
+        # Select the type of business from the dropdown
+        selector_business_type = "div.jgvuAb.ybOdnf.cGN2le.t9kgXb.llrsB"
+        page.wait_for_selector(selector_business_type, timeout=10000)
+        page.click(selector_business_type)
+        page.wait_for_selector("div[role='option']")
+        time.sleep(1)
+        page.get_by_role("option", name=input_type).locator("span").click()
+
+        # Select the designation from the dropdown if the input type is "Limited Company", "Unlimited Liability Company", or "Benefit Company"
+        if input_type.lower() == "Limited Company".lower() or input_type.lower() == "Unlimited Liability Company".lower() or input_type.lower() == "Benefit Company".lower():
+            page.get_by_role("button", name="Next").click()
+            page.get_by_role("radio", name=input_designation).click()
+
+        # Submit the form
+        page.get_by_role("button", name="Submit").click()
 
         browser.close()
 
-    return jsonify(finalResult)
+    return jsonify(input_name)
 
 # official trademark search page doesn't work with playwright
 '''
